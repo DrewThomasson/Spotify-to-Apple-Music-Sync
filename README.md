@@ -68,4 +68,3 @@ playlists:
     local_dir: "~/Music/Gym_Mix"
     apple_playlist_name: "Gym Hits"
 ```
-```
