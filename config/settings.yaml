@@ -1,0 +1,21 @@
+spotify:
+  client_id: "YOUR_SPOTIFY_CLIENT_ID_HERE"
+  client_secret: "YOUR_SPOTIFY_CLIENT_SECRET_HERE"
+  redirect_uri: "http://127.0.0.1:8888/callback"
+  scope: "user-library-read playlist-read-private"
+
+# Global settings
+sync_limit_default: 50  # How many songs to check for updates normally
+
+# Define your sync jobs here
+playlists:
+  - name: "Liked Songs Sync"
+    type: "saved_tracks" # Special type for 'Liked Songs'
+    local_dir: "~/Music/Spotify/LikedSongs"
+    apple_playlist_name: "Spotify Liked"
+    
+  - name: "Gym Playlist"
+    type: "playlist"
+    spotify_playlist_url: "https://open.spotify.com/playlist/YOUR_PLAYLIST_ID"
+    local_dir: "~/Music/Spotify/GymMix"
+    apple_playlist_name: "Gym Hits"
