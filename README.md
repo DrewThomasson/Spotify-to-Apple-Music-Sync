@@ -69,9 +69,3 @@ playlists:
     apple_playlist_name: "Gym Hits"
 ```
 ```
-
-### Why this is better:
-1.  **Scalable:** You can add 1 or 100 playlists in the YAML file without touching code.
-2.  **Safe:** Credentials are separated. Local files are separated into their own folders (no mixing gym music with sad music).
-3.  **Smart:** It checks what is *actually* in Apple Music before trying to add it, preventing errors and duplicates more reliably than just checking timestamps.
-4.  **User Friendly:** It asks you what to do when it sees a new empty folder.
