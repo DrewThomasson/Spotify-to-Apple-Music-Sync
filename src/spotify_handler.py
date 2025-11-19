@@ -17,38 +17,32 @@ class SpotifyHandler:
 
     def get_tracks(self, playlist_config, limit=50):
         """
-        Fetches track URLs. 
-        If limit is None, fetches ALL tracks (pagination).
+        Fetches track URLs from Spotify.
         """
         tracks = []
         offset = 0
         batch_size = 50
         
-        # If limit is provided and small, just use that. 
-        # If limit is None (download all), we loop.
         fetch_limit = batch_size if limit is None else limit
         
         while True:
             if playlist_config['type'] == 'saved_tracks':
                 results = self.sp.current_user_saved_tracks(limit=fetch_limit, offset=offset)
             else:
-                # Extract ID from URL
-                pl_id = playlist_config['spotify_playlist_url']
-                results = self.sp.playlist_items(pl_id, limit=fetch_limit, offset=offset)
+                pl_url = playlist_config['spotify_playlist_url']
+                results = self.sp.playlist_items(pl_url, limit=fetch_limit, offset=offset)
 
             if not results['items']:
                 break
 
             for item in results['items']:
-                if item['track'] and item['track'].get('external_urls'):
+                if item.get('track') and item['track'].get('external_urls'):
                     tracks.append(item['track']['external_urls']['spotify'])
             
-            # Break if we hit the user defined limit
             if limit is not None and len(tracks) >= limit:
                 tracks = tracks[:limit]
                 break
                 
-            # Break if we've fetched everything available
             if results['next'] is None:
                 break
                 
@@ -58,28 +52,38 @@ class SpotifyHandler:
 
     def download_tracks(self, track_urls, output_dir):
         """
-        Uses SpotDL to download tracks to the specific directory.
-        SpotDL automatically skips existing files.
+        Uses SpotDL to download tracks.
+        Strategy: Changes the 'current working directory' to the output folder,
+        then runs the simple command, mimicking the original working script.
         """
         if not track_urls:
             return []
 
         log_info(f"Sending {len(track_urls)} songs to SpotDL...")
         
-        # Construct SpotDL command
-        # --output format ensures files go to the right folder
-        cmd = [
-            'spotdl', 'download',
-            '--output', os.path.join(output_dir, '{artist} - {title}.{ext}')
-        ] + track_urls
+        # Ensure output dir exists
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
 
-        try:
-            # Run spotdl (suppress heavy output if desired, but keeping it visible is usually good)
-            subprocess.run(cmd, check=True)
-            return True
-        except subprocess.CalledProcessError:
-            log_warning("SpotDL encountered an error, but some songs may have downloaded.")
-            return False
-        except FileNotFoundError:
-            log_warning("SpotDL not found! Make sure it is installed (pip install spotdl).")
-            return False
+        # We still batch to be safe, but we remove the complicated flags
+        BATCH_SIZE = 50 
+        
+        for i in range(0, len(track_urls), BATCH_SIZE):
+            chunk = track_urls[i:i + BATCH_SIZE]
+            
+            # The command is exactly what worked for you before:
+            # spotdl download url1 url2 url3 ...
+            cmd = ['spotdl', 'download'] + chunk
+            
+            try:
+                # KEY FIX: cwd=output_dir
+                # This tells Python: "Go into this folder, THEN run the command."
+                # This forces the download to land in the right place without using flags.
+                subprocess.run(cmd, cwd=output_dir, check=True)
+            except subprocess.CalledProcessError:
+                log_warning(f"SpotDL skipped some songs in batch {i//BATCH_SIZE + 1}, usually because they already exist.")
+            except FileNotFoundError:
+                log_warning("SpotDL not found! Make sure it is installed (pip install spotdl).")
+                return False
+                
+        return True
