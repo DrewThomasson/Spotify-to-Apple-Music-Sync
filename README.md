@@ -1,4 +1,4 @@
-# Spotify to Apple Music Sync
+# Spotify to Apple Music (iPod) Sync
 
 A professional tool to sync multiple Spotify playlists (or your Liked Songs) to local storage and import them automatically into specific Apple Music playlists.
 
