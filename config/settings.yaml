@@ -13,9 +13,3 @@ playlists:
     type: "saved_tracks" # Special type for 'Liked Songs'
     local_dir: "~/Music/Spotify/LikedSongs"
     apple_playlist_name: "Spotify Liked"
-    
-  - name: "Gym Playlist"
-    type: "playlist"
-    spotify_playlist_url: "https://open.spotify.com/playlist/YOUR_PLAYLIST_ID"
-    local_dir: "~/Music/Spotify/GymMix"
-    apple_playlist_name: "Gym Hits"

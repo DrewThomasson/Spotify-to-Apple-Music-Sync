@@ -66,19 +66,97 @@ def process_playlist(job, spotify_handler, global_limit):
     local_files = scan_directory_for_audio(local_dir)
     
     # Get what is currently in Apple Music
-    # (We normalize paths to ensure accurate comparison)
-    existing_am_paths = apple_music.get_existing_tracks(apple_pl_name)
+    existing_tracks = apple_music.get_existing_tracks(apple_pl_name)
+    
+    # Create lookup sets for fast matching
+    existing_paths = {t['path'] for t in existing_tracks if t['path']}
     
     # Determine diff
     files_to_add = []
     for f in local_files:
-        if os.path.normcase(f) not in existing_am_paths:
-            files_to_add.append(f)
+        # Strict File Path Check
+        if os.path.normcase(f) in existing_paths:
+            continue
+            
+        files_to_add.append(f)
 
     if files_to_add:
         log_info(f"Found {len(files_to_add)} songs to add to Apple Music.")
-        count = apple_music.add_files_to_playlist(files_to_add, apple_pl_name)
-        log_success(f"Successfully added {count} songs to '{apple_pl_name}'.")
+        
+        # --- SETTING CHECK START ---
+        # We use the first file to verify the "Copy files" setting
+        first_file = files_to_add[0]
+        remaining_files = files_to_add[1:]
+        
+        log_info(f"Adding first file to verify settings: {os.path.basename(first_file)}")
+        if apple_music.add_files_to_playlist([first_file], apple_pl_name, delay=2.0) == 1:
+            # Verify path immediately
+            import time
+            # Give it a moment to update
+            time.sleep(1.0) 
+            
+            updated_tracks = apple_music.get_existing_tracks(apple_pl_name)
+            
+            # Find the track we just added
+            added_track = None
+            for t in updated_tracks:
+                # We can't rely on path being correct yet, so we have to look for name/artist match 
+                # OR just look for the path if it WAS copied (which is what we want to detect)
+                # But wait, if it was copied, the path will be different.
+                # If it wasn't copied, the path will be the same.
+                # So we just look for a track with the SAME path.
+                if t['path'] and os.path.normcase(t['path']) == os.path.normcase(first_file):
+                    added_track = t
+                    break
+            
+            if not added_track:
+                # If we can't find the track with the exact path, it might have been copied.
+                # Let's try to find it by metadata to confirm it was added but has wrong path.
+                # This is tricky because metadata might not match exactly what we expect from filename.
+                # But if we just added it, it should be there.
+                
+                # Let's check if ANY track has the wrong path (i.e. inside Music Media folder)
+                # This is hard to generalize.
+                
+                # Simpler check: If we added it, and it's not in our 'existing_paths' (which we updated?),
+                # actually we need to re-fetch.
+                
+                # Let's look for the file we just added.
+                # If we can't find it by path, then the setting is likely ON.
+                log_error("CRITICAL: Added file not found by path in Apple Music.")
+                log_error(f"Expected Path: {first_file}")
+                log_error(f"Normalized Expected: {os.path.normcase(first_file)}")
+                
+                log_info("Dumping found tracks in Apple Music for debugging:")
+                for t in updated_tracks:
+                    log_info(f" - Name: {t['name']}")
+                    log_info(f"   Artist: {t['artist']}")
+                    log_info(f"   Path: {t['path']}")
+                    log_info(f"   Raw Location: {t.get('raw_location', 'N/A')}")
+                    if t['path']:
+                        log_info(f"   Normalized Path: {os.path.normcase(t['path'])}")
+                        
+                log_error("This likely means 'Copy files to Music Media folder' is ON.")
+                log_error("Please UNCHECK 'Copy files to Music Media folder when adding to library' in Music > Settings > Files.")
+                
+                # Try to clean up if possible? Hard to know which track it is if path doesn't match.
+                return
+            else:
+                log_success("Settings verified: File added with correct path.")
+                
+        else:
+            log_error("Failed to add the first file. Aborting sync.")
+            return
+            
+        # --- SETTING CHECK END ---
+
+        if remaining_files:
+            log_info(f"Adding remaining {len(remaining_files)} songs...")
+            count = apple_music.add_files_to_playlist(remaining_files, apple_pl_name, delay=2.0)
+            log_success(f"Successfully added {count + 1} songs to '{apple_pl_name}'.") # +1 for the first one
+        else:
+            log_success(f"Successfully added 1 song to '{apple_pl_name}'.")
+            
     else:
         log_success("Apple Music playlist is already up to date with local files.")
 
