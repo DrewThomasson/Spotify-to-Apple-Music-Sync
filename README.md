@@ -1,6 +1,9 @@
 # Spotify to Apple Music (iPod) Sync
 
-A professional tool to sync multiple Spotify playlists (or your Liked Songs) to local storage and import them automatically into specific Apple Music playlists.
+A professional tool to sync multiple Spotify playlists (or your Liked Songs) to local storage and import them automatically into specific Apple Music playlists. (I made this for auto-Syncing my ipod with my spotify playlists)
+
+# IMPORTANT
+### MAKE SURE TO GO INTO APPLE MUSIC SETTINGS -> FILES AND TURN OFF COPY FILES TO MUSIC MEDIA folder when adding to library && "KEEP MEDIA MUSIC FOLDER ORGANIZED"
 
 ## Features
 - **Multi-Playlist Support:** Sync "Liked Songs" and custom playlists simultaneously.
@@ -68,10 +71,3 @@ playlists:
     local_dir: "~/Music/Gym_Mix"
     apple_playlist_name: "Gym Hits"
 ```
-```
-
-### Why this is better:
-1.  **Scalable:** You can add 1 or 100 playlists in the YAML file without touching code.
-2.  **Safe:** Credentials are separated. Local files are separated into their own folders (no mixing gym music with sad music).
-3.  **Smart:** It checks what is *actually* in Apple Music before trying to add it, preventing errors and duplicates more reliably than just checking timestamps.
-4.  **User Friendly:** It asks you what to do when it sees a new empty folder.
