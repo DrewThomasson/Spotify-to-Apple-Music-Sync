@@ -10,7 +10,7 @@
 >
 > If you do not do this, the sync **WILL FAIL** and duplicate songs will be created.
 
-A Python tool to sync Spotify playlists to Apple Music.ked Songs) to local storage and import them automatically into specific Apple Music playlists. (I made this for auto-Syncing my ipod with my spotify playlists)
+This is for auto-syncing your spotify playlists to your offline Apple Music
 
 ## Features
 - **Multi-Playlist Support:** Sync "Liked Songs" and custom playlists simultaneously.
