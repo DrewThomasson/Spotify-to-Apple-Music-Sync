@@ -87,3 +87,26 @@ class SpotifyHandler:
                 return False
                 
         return True
+
+    def get_all_user_playlists(self):
+        """
+        Fetches all playlists for the current user.
+        Returns a list of dicts: {'name': str, 'spotify_playlist_url': str}
+        """
+        playlists = []
+        results = self.sp.current_user_playlists(limit=50)
+        
+        while results:
+            for item in results['items']:
+                if item and item.get('name') and item.get('external_urls'):
+                    playlists.append({
+                        'name': item['name'],
+                        'spotify_playlist_url': item['external_urls']['spotify']
+                    })
+            
+            if results['next']:
+                results = self.sp.next(results)
+            else:
+                break
+                
+        return playlists

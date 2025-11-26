@@ -166,16 +166,45 @@ def main():
     sp_config = config['spotify']
     playlists = config.get('playlists', [])
     default_limit = config.get('sync_limit_default', 50)
+    sync_all_playlists = config.get('sync_all_playlists', False)
 
-    if not playlists:
-        log_warning("No playlists defined in settings.yaml")
-        return
+    # Check Apple Music Settings First
+    # Use a temp directory for the check
+    import tempfile
+    # We can skip the temp dir check here since we do it inline now, 
+    # but let's keep the imports if needed later.
+    pass
 
     # Initialize Spotify
     try:
         handler = SpotifyHandler(sp_config)
     except Exception as e:
         log_error(f"Failed to initialize Spotify Client: {e}")
+        return
+
+    # Handle "Sync All Playlists"
+    if sync_all_playlists:
+        log_info("Sync All Playlists is ENABLED. Fetching all user playlists...")
+        user_playlists = handler.get_all_user_playlists()
+        log_info(f"Found {len(user_playlists)} playlists on Spotify.")
+        
+        for pl in user_playlists:
+            # Sanitize name for folder
+            safe_name = "".join([c for c in pl['name'] if c.isalpha() or c.isdigit() or c in (' ', '-', '_')]).strip()
+            
+            # Create job object
+            job = {
+                'name': pl['name'],
+                'type': 'playlist',
+                'spotify_playlist_url': pl['spotify_playlist_url'],
+                'local_dir': os.path.expanduser(f"~/Music/Spotify/{safe_name}"),
+                'apple_playlist_name': pl['name'],
+                'sync_limit': default_limit
+            }
+            playlists.append(job)
+
+    if not playlists:
+        log_warning("No playlists defined in settings.yaml and sync_all_playlists is False.")
         return
 
     # Run Jobs

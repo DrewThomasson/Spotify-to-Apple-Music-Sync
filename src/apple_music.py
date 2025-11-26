@@ -119,6 +119,9 @@ def add_files_to_playlist(file_paths, playlist_name, delay=1.0):
     count = 0
     # Apple Music handles batches better than one-by-one
     for file_path in file_paths:
+        file_name = os.path.basename(file_path)
+        log_info(f"Adding: {file_name}")
+        
         # AppleScript requires POSIX file format
         script = f'''
         tell application "Music"
@@ -134,6 +137,6 @@ def add_files_to_playlist(file_paths, playlist_name, delay=1.0):
             count += 1
             time.sleep(delay)
         else:
-            log_warning(f"Failed to add to Apple Music: {os.path.basename(file_path)}")
+            log_warning(f"Failed to add to Apple Music: {file_name}")
             
     return count

@@ -1,9 +1,16 @@
-# Spotify to Apple Music (iPod) Sync
+# Spotify to Apple Music Sync
 
-A professional tool to sync multiple Spotify playlists (or your Liked Songs) to local storage and import them automatically into specific Apple Music playlists. (I made this for auto-Syncing my ipod with my spotify playlists)
+> [!IMPORTANT]
+> **CRITICAL SETUP STEP**: Before using this tool, you **MUST** disable "Copy files to Music Media folder when adding to library" in Apple Music.
+>
+> 1. Open Apple Music.
+> 2. Go to **Music** > **Settings...** > **Files**.
+> 3. **UNCHECK** "Copy files to Music Media folder when adding to library".
+> 4. **UNCHECK** "Keep Music Media folder organized" (recommended).
+>
+> If you do not do this, the sync **WILL FAIL** and duplicate songs will be created.
 
-# IMPORTANT
-### MAKE SURE TO GO INTO APPLE MUSIC SETTINGS -> FILES AND TURN OFF COPY FILES TO MUSIC MEDIA folder when adding to library && "KEEP MEDIA MUSIC FOLDER ORGANIZED"
+A Python tool to sync Spotify playlists to Apple Music.ked Songs) to local storage and import them automatically into specific Apple Music playlists. (I made this for auto-Syncing my ipod with my spotify playlists)
 
 ## Features
 - **Multi-Playlist Support:** Sync "Liked Songs" and custom playlists simultaneously.

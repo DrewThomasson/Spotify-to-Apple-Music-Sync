@@ -5,11 +5,25 @@ spotify:
   scope: "user-library-read playlist-read-private"
 
 # Global settings
-sync_limit_default: 50  # How many songs to check for updates normally
+# Default limit for number of songs to sync per playlist
+sync_limit_default: 50
 
-# Define your sync jobs here
+# Set to true to automatically sync ALL your Spotify playlists
+# This will create a folder for each playlist in ~/Music/Spotify/
+sync_all_playlists: false
+
 playlists:
+
+
   - name: "Liked Songs Sync"
     type: "saved_tracks" # Special type for 'Liked Songs'
     local_dir: "~/Music/Spotify/LikedSongs"
     apple_playlist_name: "Spotify Liked"
+    
+  # Example: Sync "Gym Hits"
+  # - name: "Gym Hits"
+  #   type: "playlist"
+  #   spotify_playlist_url: "https://open.spotify.com/playlist/37i9dQZF1DX9sIqqvKsjG8"
+  #   local_dir: "~/Music/Spotify/GymMix"
+  #   apple_playlist_name: "Gym Hits"
+  #   sync_limit: 100
