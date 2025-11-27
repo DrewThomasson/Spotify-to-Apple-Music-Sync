@@ -66,15 +66,46 @@ spotify:
   redirect_uri: "http://127.0.0.1:8888/callback"
   scope: "user-library-read"
 
-playlists:
-  - name: "My Liked Songs"
-    type: "saved_tracks"
-    local_dir: "~/Music/Spotify_Liked"
-    apple_playlist_name: "Spotify Liked"
+spotify:
+  client_id: "YOUR_SPOTIFY_CLIENT_ID_HERE"
+  client_secret: "YOUR_SPOTIFY_CLIENT_SECRET_HERE"
+  redirect_uri: "http://127.0.0.1:8888/callback"
+  scope: "user-library-read playlist-read-private"
 
-  - name: "Gym Mix"
-    type: "playlist"
-    spotify_playlist_url: "https://open.spotify.com/playlist/..."
-    local_dir: "~/Music/Gym_Mix"
-    apple_playlist_name: "Gym Hits"
+# Global settings
+# Default limit for number of songs to sync per playlist
+sync_limit_default: 50
+
+# Set to true to automatically sync ALL your Spotify playlists
+# This will create a folder for each playlist in ~/Music/Spotify/
+sync_all_playlists: false
+
+playlists:
+  # --- Example 1: Sync "Liked Songs" (Saved Tracks) ---
+  - name: "Liked Songs"
+    type: "saved_tracks"                  # Special type for 'Liked Songs'
+    local_dir: "~/Music/Spotify/LikedSongs" # Where to save the files locally
+    apple_playlist_name: "Spotify Liked"  # Name of the playlist in Apple Music
+    sync_limit: 200                       # Optional: Override global sync limit for this job
+
+  # --- Example 2: Sync a Specific Spotify Playlist ---
+  # - name: "Gym Hits"
+  #   type: "playlist"
+  #   spotify_playlist_url: "https://open.spotify.com/playlist/37i9dQZF1DX9sIqqvKsjG8"
+  #   local_dir: "~/Music/Spotify/GymMix"
+  #   apple_playlist_name: "Gym Hits"
+  #   sync_limit: 100                       # Optional: Download up to 100 songs (default is 50)
+
+  # --- Example 3: Another Playlist ---
+  # - name: "Chill Vibes"
+  #   type: "playlist"
+  #   spotify_playlist_url: "https://open.spotify.com/playlist/..."
+  #   local_dir: "~/Music/Spotify/Chill"
+  #   apple_playlist_name: "Chill Vibes"
+
+  # Active Job (Uncommented)
+  - name: "Liked Songs Sync"
+    type: "saved_tracks"
+    local_dir: "~/Music/Spotify/LikedSongs"
+    apple_playlist_name: "Spotify Liked"
 ```
