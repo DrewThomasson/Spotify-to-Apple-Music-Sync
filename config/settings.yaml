@@ -27,16 +27,3 @@ playlists:
   #   local_dir: "~/Music/Spotify/GymMix"
   #   apple_playlist_name: "Gym Hits"
   #   sync_limit: 100                       # Optional: Download up to 100 songs (default is 50)
-
-  # --- Example 3: Another Playlist ---
-  # - name: "Chill Vibes"
-  #   type: "playlist"
-  #   spotify_playlist_url: "https://open.spotify.com/playlist/..."
-  #   local_dir: "~/Music/Spotify/Chill"
-  #   apple_playlist_name: "Chill Vibes"
-
-  # Active Job (Uncommented)
-  - name: "Liked Songs Sync"
-    type: "saved_tracks"
-    local_dir: "~/Music/Spotify/LikedSongs"
-    apple_playlist_name: "Spotify Liked"
