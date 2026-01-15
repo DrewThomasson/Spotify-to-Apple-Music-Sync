@@ -14,6 +14,7 @@ This is for auto-syncing your spotify playlists to your offline Apple Music
 
 ## Features
 - **Multi-Playlist Support:** Sync "Liked Songs" and custom playlists simultaneously.
+- **Artist Support:** Sync all tracks from a specific artist (albums, singles, compilations).
 - **Local Backups:** Downloads high-quality audio via `spotdl` to organized local folders.
 - **Smart Syncing:** Checks Apple Music contents to avoid duplicates.
 - **Interactive:** Detects new setups and asks if you want to download the *entire* history or just recent updates.
@@ -88,4 +89,12 @@ playlists:
     local_dir: "~/Music/Spotify/GymMix"
     apple_playlist_name: "Gym Hits"
     sync_limit: 100                       # Optional: Download up to 100 songs (default is 50)
+
+  # --- Example 3: Sync All Tracks from an Artist ---
+  - name: "Artist Name"
+    type: "artist"
+    spotify_artist_url: "https://open.spotify.com/artist/4W2IGF6LXg7daQqMGy9S0O"
+    local_dir: "~/Music/Spotify/ArtistName"
+    apple_playlist_name: "Artist Name"
+    sync_limit: 100                       # Optional: Limit number of tracks to sync
 ```
