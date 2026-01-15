@@ -4,6 +4,9 @@ import subprocess
 import os
 from .utils import log_info, log_success, log_warning
 
+# Minimum length for a valid Spotify ID
+SPOTIFY_ID_MIN_LENGTH = 10
+
 class SpotifyHandler:
     def __init__(self, config):
         self.config = config
@@ -15,6 +18,84 @@ class SpotifyHandler:
             cache_path=".spotdl_cache"
         ))
 
+    def _extract_artist_id(self, url_or_uri):
+        """
+        Extract artist ID from Spotify URL or URI.
+        Supports formats:
+        - https://open.spotify.com/artist/4W2IGF6LXg7daQqMGy9S0O
+        - spotify:artist:4W2IGF6LXg7daQqMGy9S0O
+        """
+        artist_id = None
+        
+        if 'spotify.com/artist/' in url_or_uri:
+            # Extract from URL
+            parts = url_or_uri.split('spotify.com/artist/')[-1].split('?')[0].split('/')
+            artist_id = parts[0] if parts[0] else None
+        elif 'spotify:artist:' in url_or_uri:
+            # Extract from URI
+            parts = url_or_uri.split('spotify:artist:')[-1].split(':')
+            artist_id = parts[0] if parts[0] else None
+        
+        if not artist_id or len(artist_id) < SPOTIFY_ID_MIN_LENGTH:
+            raise ValueError(f"Invalid artist URL or URI: {url_or_uri}")
+        
+        return artist_id
+    
+    def _get_artist_tracks(self, artist_id, limit=None):
+        """
+        Fetches all tracks from an artist by getting all their albums and then all tracks from those albums.
+        """
+        tracks = []
+        
+        # Get all albums from the artist (albums, singles, and compilations)
+        albums = []
+        offset = 0
+        
+        while True:
+            results = self.sp.artist_albums(
+                artist_id, 
+                album_type='album,single,compilation',
+                limit=50,
+                offset=offset
+            )
+            
+            if not results['items']:
+                break
+                
+            albums.extend(results['items'])
+            
+            if results['next'] is None:
+                break
+                
+            offset += len(results['items'])
+        
+        # Get tracks from each album
+        for album in albums:
+            album_id = album['id']
+            album_offset = 0
+            
+            while True:
+                album_tracks = self.sp.album_tracks(album_id, limit=50, offset=album_offset)
+                
+                if not album_tracks['items']:
+                    break
+                
+                for track in album_tracks['items']:
+                    spotify_url = track.get('external_urls', {}).get('spotify')
+                    if spotify_url:
+                        tracks.append(spotify_url)
+                        
+                        # Check if we've reached the limit
+                        if limit is not None and len(tracks) >= limit:
+                            return tracks[:limit]
+                
+                if album_tracks['next'] is None:
+                    break
+                    
+                album_offset += len(album_tracks['items'])
+        
+        return tracks
+
     def get_tracks(self, playlist_config, limit=50):
         """
         Fetches track URLs from Spotify.
@@ -25,6 +106,13 @@ class SpotifyHandler:
         
         fetch_limit = batch_size if limit is None else limit
         
+        if playlist_config['type'] == 'artist':
+            # Handle artist type
+            artist_url = playlist_config['spotify_artist_url']
+            artist_id = self._extract_artist_id(artist_url)
+            return self._get_artist_tracks(artist_id, limit=limit)
+        
+        # Handle saved_tracks and playlist types
         while True:
             if playlist_config['type'] == 'saved_tracks':
                 results = self.sp.current_user_saved_tracks(limit=fetch_limit, offset=offset)

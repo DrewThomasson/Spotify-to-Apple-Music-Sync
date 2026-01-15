@@ -27,3 +27,11 @@ playlists:
   #   local_dir: "~/Music/Spotify/GymMix"
   #   apple_playlist_name: "Gym Hits"
   #   sync_limit: 100                       # Optional: Download up to 100 songs (default is 50)
+
+  # --- Example 3: Sync All Tracks from an Artist ---
+  # - name: "Lianhua"
+  #   type: "artist"
+  #   spotify_artist_url: "https://open.spotify.com/artist/4W2IGF6LXg7daQqMGy9S0O"
+  #   local_dir: "~/Music/spotify playlists/Lianhua"
+  #   apple_playlist_name: "Lianhua"
+  #   sync_limit: 100                       # Optional: Limit number of tracks (gets all albums/singles/compilations)
