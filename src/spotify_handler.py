@@ -22,13 +22,18 @@ class SpotifyHandler:
         - https://open.spotify.com/artist/4W2IGF6LXg7daQqMGy9S0O
         - spotify:artist:4W2IGF6LXg7daQqMGy9S0O
         """
+        artist_id = None
+        
         if 'spotify.com/artist/' in url_or_uri:
             # Extract from URL
-            artist_id = url_or_uri.split('spotify.com/artist/')[-1].split('?')[0]
+            parts = url_or_uri.split('spotify.com/artist/')[-1].split('?')[0].split('/')
+            artist_id = parts[0] if parts[0] else None
         elif 'spotify:artist:' in url_or_uri:
             # Extract from URI
-            artist_id = url_or_uri.split('spotify:artist:')[-1]
-        else:
+            parts = url_or_uri.split('spotify:artist:')[-1].split(':')
+            artist_id = parts[0] if parts[0] else None
+        
+        if not artist_id or len(artist_id) < 10:  # Spotify IDs are typically 22 characters
             raise ValueError(f"Invalid artist URL or URI: {url_or_uri}")
         
         return artist_id
@@ -73,7 +78,7 @@ class SpotifyHandler:
                     break
                 
                 for track in album_tracks['items']:
-                    if track.get('external_urls'):
+                    if track.get('external_urls') and track['external_urls'].get('spotify'):
                         tracks.append(track['external_urls']['spotify'])
                         
                         # Check if we've reached the limit
@@ -101,9 +106,9 @@ class SpotifyHandler:
             # Handle artist type
             artist_url = playlist_config['spotify_artist_url']
             artist_id = self._extract_artist_id(artist_url)
-            tracks = self._get_artist_tracks(artist_id, limit=limit)
-            return tracks
+            return self._get_artist_tracks(artist_id, limit=limit)
         
+        # Handle saved_tracks and playlist types
         while True:
             if playlist_config['type'] == 'saved_tracks':
                 results = self.sp.current_user_saved_tracks(limit=fetch_limit, offset=offset)
