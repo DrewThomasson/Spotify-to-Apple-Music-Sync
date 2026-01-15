@@ -4,6 +4,9 @@ import subprocess
 import os
 from .utils import log_info, log_success, log_warning
 
+# Minimum length for a valid Spotify ID
+SPOTIFY_ID_MIN_LENGTH = 10
+
 class SpotifyHandler:
     def __init__(self, config):
         self.config = config
@@ -33,7 +36,7 @@ class SpotifyHandler:
             parts = url_or_uri.split('spotify:artist:')[-1].split(':')
             artist_id = parts[0] if parts[0] else None
         
-        if not artist_id or len(artist_id) < 10:  # Spotify IDs are typically 22 characters
+        if not artist_id or len(artist_id) < SPOTIFY_ID_MIN_LENGTH:
             raise ValueError(f"Invalid artist URL or URI: {url_or_uri}")
         
         return artist_id
@@ -78,8 +81,9 @@ class SpotifyHandler:
                     break
                 
                 for track in album_tracks['items']:
-                    if track.get('external_urls') and track['external_urls'].get('spotify'):
-                        tracks.append(track['external_urls']['spotify'])
+                    spotify_url = track.get('external_urls', {}).get('spotify')
+                    if spotify_url:
+                        tracks.append(spotify_url)
                         
                         # Check if we've reached the limit
                         if limit is not None and len(tracks) >= limit:
